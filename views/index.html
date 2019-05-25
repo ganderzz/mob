@@ -1,0 +1,52 @@
+{% include "head.html" %}
+
+<body>
+  <div class="hero is-dark is-bold">
+      <div class="hero-body">
+        <div class="container">
+          <h1 class="title">
+            Mob
+          </h1>
+        </div>
+      </div>
+    </div>
+    <section class="section">
+
+      <form class="container">
+        <h3 class="title is-3">Create Poll</h3>
+
+        <div>
+          <label class="label">Question:</label> 
+          <input class="input" type="text" id="question" />
+        </div>
+        
+        <hr style="margin: 1rem 0;" />
+
+        <label class="label">Options:</label>
+        <div id="options__list"></div>
+        <button id="add__option" class="button is-primary" style="margin-top: 10px;">+ Add Option</button>
+
+        <button class="button is-success is-pulled-right" style="margin-top: 10px;">Create Poll</button>
+      </form>
+    </section>
+
+    <script>
+      window.onload = function() {
+        document
+          .querySelector("#add__option")
+          .addEventListener("click", function(e) {
+            e.preventDefault();
+            var itemWrapper = document.createElement("div");
+
+            var item = document.createElement("input");
+            item.classList.add("option");
+            item.classList.add("input");
+
+            itemWrapper.appendChild(item);
+
+            document.querySelector("#options__list").appendChild(itemWrapper);
+          });
+      };
+    </script>
+  </body>
+</html>
