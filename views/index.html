@@ -1,52 +1,96 @@
 {% include "head.html" %}
 
-<body>
-  <div class="hero is-dark is-bold">
-      <div class="hero-body">
-        <div class="container">
-          <h1 class="title">
-            Mob
-          </h1>
-        </div>
-      </div>
+<div class="hero is-dark is-bold">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">
+        Mob
+      </h1>
     </div>
-    <section class="section">
+  </div>
+</div>
 
-      <form class="container">
-        <h3 class="title is-3">Create Poll</h3>
+<section class="section">
+  <form class="container">
+    <h3 class="title is-3">Create Poll</h3>
 
-        <div>
-          <label class="label">Question:</label> 
-          <input class="input" type="text" id="question" />
-        </div>
-        
-        <hr style="margin: 1rem 0;" />
+    <div>
+      <label class="label">Question:</label>
+      <input class="input" type="text" id="question" />
+    </div>
 
-        <label class="label">Options:</label>
-        <div id="options__list"></div>
-        <button id="add__option" class="button is-primary" style="margin-top: 10px;">+ Add Option</button>
+    <hr style="margin: 1rem 0;" />
 
-        <button class="button is-success is-pulled-right" style="margin-top: 10px;">Create Poll</button>
-      </form>
-    </section>
+    <label class="label">Options:</label>
+    <ul id="options__list"></ul>
+    <button
+      id="add__option"
+      class="button is-primary"
+      style="margin-top: 10px;"
+    >
+      + Add Option
+    </button>
 
-    <script>
-      window.onload = function() {
-        document
-          .querySelector("#add__option")
-          .addEventListener("click", function(e) {
-            e.preventDefault();
-            var itemWrapper = document.createElement("div");
+    <button
+      id="create__poll"
+      class="button is-success is-pulled-right"
+      style="margin-top: 10px;"
+    >
+      Create Poll
+    </button>
+  </form>
+</section>
 
-            var item = document.createElement("input");
-            item.classList.add("option");
-            item.classList.add("input");
+<script>
+  window.onload = function() {
+    document
+      .querySelector("#add__option")
+      .addEventListener("click", function(e) {
+        e.preventDefault();
+        var itemWrapper = document.createElement("li");
 
-            itemWrapper.appendChild(item);
+        var item = document.createElement("input");
+        item.classList.add("option");
+        item.classList.add("input");
 
-            document.querySelector("#options__list").appendChild(itemWrapper);
+        itemWrapper.appendChild(item);
+
+        document.querySelector("#options__list").appendChild(itemWrapper);
+      });
+
+    document
+      .querySelector("#create__poll")
+      .addEventListener("click", function(e) {
+        e.preventDefault();
+
+        const options = document.querySelectorAll(".option");
+
+        if (!options) {
+          alert("Missing options for this poll.");
+          return;
+        }
+
+        let optionValues = [];
+        options.forEach(p => {
+          optionValues.push(p.value);
+        });
+
+        fetch("/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question: document.querySelector("#question").value,
+            options: optionValues
+          })
+        })
+          .then(p => {
+            alert("Poll created.");
+          })
+          .catch(error => {
+            alert(error);
           });
-      };
-    </script>
-  </body>
-</html>
+      });
+  };
+</script>
+
+{% include "footer.html" %}

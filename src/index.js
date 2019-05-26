@@ -8,10 +8,6 @@ app.use(express.json());
 
 const http = require("http").createServer(app);
 
-const init = new API();
-init.init();
-init.close();
-
 nunjucks.configure("views", {
   autoescape: true,
   express: app
@@ -40,5 +36,9 @@ app.post(
 );
 
 http.listen(3000, function() {
+  const db = new API();
+  db.init();
+  db.close();
+
   console.log("listening on *:3000");
 });

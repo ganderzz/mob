@@ -1,12 +1,10 @@
 const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
-
-const BASE_URL = path.resolve(__dirname, "../");
+const { BASE_URL } = require("./utils/path");
 
 class API {
   constructor() {
     this.DB = new sqlite3.Database(path.resolve(BASE_URL, "db/polls.db"));
-    this.init();
   }
 
   close() {
@@ -41,7 +39,7 @@ class API {
   }
 
   getActivePolls() {
-    const sql = "SELECT * FROM polls ORDER BY id";
+    const sql = "SELECT * FROM polls WHERE isActive = 1";
 
     return new Promise((resolve, reject) => {
       this.DB.all(sql, [], (error, rows) => {
@@ -54,24 +52,47 @@ class API {
     });
   }
 
+  /**
+   * Create Poll using the provided questions and options
+   *
+   * @param {*} poll
+   */
   createPoll(poll) {
-    if (!poll || !poll.question) {
-      return Promise.reject("Poll is missing a question.");
-    }
+    return new Promise((resolve, reject) => {
+      if (!poll || !poll.question) {
+        return reject("Poll is missing a question.");
+      }
 
-    if (!poll.options) {
-      return Promise.reject("A poll must be created with options.");
-    }
+      if (!poll.options) {
+        return reject("A poll must be created with options.");
+      }
 
-    const sql = this.DB.prepare(
-      "INSERT INTO polls (question, isActive) VALUES (?, 1)"
-    );
+      const db = this.DB;
 
-    sql.run(poll.question);
+      db.run(
+        `INSERT INTO polls 
+    (question, isActive) 
+    VALUES (?, 1)
+  `,
+        poll.question,
+        function(err) {
+          if (err) {
+            return reject(err);
+          }
 
-    sql.finalize();
+          poll.options.forEach(val => {
+            db.run(
+              `INSERT INTO options 
+          (pollId, value, totalVotes) 
+          VALUES (?, ?, 0)`,
+              [this.lastID, val]
+            );
+          });
 
-    return Promise.resolve();
+          resolve();
+        }
+      );
+    });
   }
 }
 
