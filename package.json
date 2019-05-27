@@ -16,7 +16,7 @@
     "prettier": "^1.17.1"
   },
   "scripts": {
-    "start": "SET MOB_LOGIN_PASSWORD=t && node_modules/.bin/nodemon ./src/index.js"
+    "start": "node_modules/.bin/nodemon ./src/index.js"
   },
   "nodemonConfig": {
     "ignore": [
