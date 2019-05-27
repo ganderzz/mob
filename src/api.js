@@ -15,9 +15,11 @@ class API {
 
   init() {
     if (!this.DB) {
-      throw "Database is not initialized";
+      throw new Error("Database is not initialized");
       return;
     }
+
+    // ----- Tables -----
 
     this.DB.run(
       `CREATE TABLE IF NOT EXISTS polls (
@@ -36,6 +38,10 @@ class API {
         FOREIGN KEY(pollId) REFERENCES polls(id)
       )`
     );
+
+    // ----- Indicies -----
+
+    this.DB.run(`CREATE INDEX IF NOT EXISTS idx_pollid ON options(pollId)`);
   }
 
   getActivePolls() {
@@ -52,19 +58,41 @@ class API {
     });
   }
 
+  getPollById(id) {
+    if (id == null || id == undefined) {
+      return Promise.reject("Invalid ID provided.");
+    }
+
+    const sql = `
+      SELECT * FROM polls as p 
+      LEFT JOIN options as o ON o.pollId = p.id
+      WHERE p.id = ? 
+    `;
+
+    return new Promise(resolve => {
+      this.DB.all(sql, [id], (error, rows) => {
+        if (error) {
+          throw new Error(error);
+        }
+
+        return resolve(rows);
+      });
+    });
+  }
+
   /**
    * Create Poll using the provided questions and options
    *
    * @param {*} poll
    */
   createPoll(poll) {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       if (!poll || !poll.question) {
-        return reject("Poll is missing a question.");
+        throw new Error("Poll is missing a question.");
       }
 
       if (!poll.options) {
-        return reject("A poll must be created with options.");
+        throw new Error("A poll must be created with options.");
       }
 
       const db = this.DB;
@@ -77,19 +105,21 @@ class API {
         poll.question,
         function(err) {
           if (err) {
-            return reject(err);
+            throw new Error(err);
           }
+
+          const pollId = this.lastID;
 
           poll.options.forEach(val => {
             db.run(
               `INSERT INTO options 
           (pollId, value, totalVotes) 
           VALUES (?, ?, 0)`,
-              [this.lastID, val]
+              [pollId, val]
             );
           });
 
-          resolve();
+          resolve(pollId);
         }
       );
     });

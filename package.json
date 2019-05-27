@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "compression": "^1.7.4",
     "express": "^4.17.0",
     "nunjucks": "^3.2.0",
     "sqlite3": "^4.0.8"
