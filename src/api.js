@@ -4,7 +4,7 @@ const { BASE_URL } = require("./utils/path");
 
 class API {
   constructor() {
-    this.DB = new sqlite3.Database(path.resolve(BASE_URL, "db/polls.db"));
+    this.DB = new sqlite3.Database(path.resolve(BASE_URL, "db", "polls.db"));
   }
 
   close() {
@@ -45,15 +45,40 @@ class API {
   }
 
   getActivePolls() {
-    const sql = "SELECT * FROM polls WHERE isActive = 1";
+    const sql = `
+      SELECT * FROM polls p
+      LEFT JOIN options as o ON o.pollId = p.id 
+      WHERE p.isActive = 1
+    `;
 
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
       this.DB.all(sql, [], (error, rows) => {
         if (error) {
-          return reject(error);
+          return new Error(error);
         }
 
-        return resolve(rows);
+        const groupedByPoll = rows.reduce((accu, current) => {
+          return {
+            ...accu,
+            [current.pollId]: {
+              ...(accu[current.pollId] || {}),
+              id: current.pollId,
+              question: current.question,
+              options: [
+                ...(accu[current.pollId] ? accu[current.pollId].options : []),
+                {
+                  id: current.id,
+                  value: current.value,
+                  totalVotes: current.totalVotes
+                }
+              ]
+            }
+          };
+        }, {});
+
+        return resolve(
+          Object.keys(groupedByPoll).map(key => groupedByPoll[key])
+        );
       });
     });
   }

@@ -1,0 +1,105 @@
+{% include "head.html" %}
+
+<section class="hero is-info">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">
+        Admin
+      </h1>
+
+      <h2 class="subtitle">
+        Administrative functionality for MOB.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <form class="container">
+    <h3 class="title is-3">Create Poll</h3>
+
+    <div>
+      <label class="label">Question:</label>
+      <input class="input" type="text" id="question" />
+    </div>
+
+    <hr style="margin: 1rem 0;" />
+
+    <label class="label">Options:</label>
+    <ul id="options__list"></ul>
+    <button
+      id="add__option"
+      class="button is-primary"
+      style="margin-top: 10px;"
+    >
+      + Add Option
+    </button>
+
+    <button
+      id="create__poll"
+      class="button is-success is-pulled-right"
+      style="margin-top: 10px;"
+    >
+      Create Poll
+    </button>
+  </form>
+</section>
+
+<script>
+  window.onload = function() {
+    document
+      .querySelector("#add__option")
+      .addEventListener("click", function(e) {
+        e.preventDefault();
+        var itemWrapper = document.createElement("li");
+
+        var item = document.createElement("input");
+        item.classList.add("option");
+        item.classList.add("input");
+
+        itemWrapper.appendChild(item);
+
+        document.querySelector("#options__list").appendChild(itemWrapper);
+      });
+
+    document
+      .querySelector("#create__poll")
+      .addEventListener("click", function(e) {
+        e.preventDefault();
+
+        const options = document.querySelectorAll(".option");
+
+        if (!options) {
+          alert("Missing options for this poll.");
+          return;
+        }
+
+        let optionValues = [];
+        options.forEach(p => {
+          optionValues.push(p.value);
+        });
+
+        fetch("/api/polls", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question: document.querySelector("#question").value,
+            options: optionValues
+          })
+        })
+          .then(p => {
+            if (p.ok) {
+              alert("Poll created.");
+              return;
+            }
+
+            return p.text().then(Promise.reject);
+          })
+          .catch(error => {
+            alert(error);
+          });
+      });
+  };
+</script>
+
+{% include "footer.html" %}
