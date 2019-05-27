@@ -83,6 +83,26 @@ class API {
     });
   }
 
+  updateOptionCount(optionId) {
+    if (optionId == null || optionId == undefined) {
+      return Promise.reject("Invalid option id provided.");
+    }
+
+    return new Promise(resolve => {
+      this.DB.run(
+        `
+        UPDATE options
+        SET totalVotes = totalVotes + 1
+        WHERE id = ?
+      `,
+        [optionId],
+        function() {
+          resolve();
+        }
+      );
+    });
+  }
+
   getPollById(id) {
     if (id == null || id == undefined) {
       return Promise.reject("Invalid ID provided.");

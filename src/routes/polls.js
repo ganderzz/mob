@@ -44,4 +44,13 @@ module.exports = function(app) {
       res.send(result);
     })
   );
+
+  app.put(
+    "/api/options/:optionId",
+    asyncMiddleware(async (req, res) => {
+      const result = await new API().updateOptionCount(req.params.optionId);
+
+      res.send(result);
+    })
+  );
 };

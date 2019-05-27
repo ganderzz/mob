@@ -23,7 +23,7 @@
 <template id="mob__card">
   <div class="box">
     <div class="media-content">
-      <div class="content"></div>
+      <div class="content	is-clearfix"></div>
     </div>
   </div>
 </template>
@@ -33,87 +33,160 @@
 </script>
 
 <script>
-  window.onload = function() {
-    var mobCardTemplate = document.querySelector("#mob__card");
+  // --- Components ---
 
-    var pollListContainer = document.querySelector("#poll_list_container");
-
-    function fetchActivePolls() {
-      return fetch("/api/polls", { method: "GET" })
-        .then(p => {
-          if (p.ok) {
-            return p.json();
-          }
-
-          return Promise.reject(p);
-        })
-        .then(p => {
-          pollListContainer.innerHTML = "";
-
-          p.forEach(poll => {
-            var clone = document.importNode(mobCardTemplate.content, true);
-
-            var header = new Element("strong", {
-              innerHTML: poll.question,
-              style: {
-                marginBottom: "20px",
-                fontSize: "1.4rem"
-              }
-            });
-
-            var content = clone.querySelector(".content");
-
-            header.renderTo(content);
-
-            const totalVoteCount = poll.options.reduce(
-              (accu, current) => accu + current.totalVotes,
-              0
-            );
-
-            poll.options.forEach(option => {
-              var wrapper = new Element(
-                "div",
-                {
-                  style: { marginTop: "10px" }
-                },
-                [
-                  new Element("input", {
-                    type: "radio",
-                    id: option.value + poll.id.toString(),
-                    name: poll.id.toString(),
-                    style: {
-                      marginRight: "5px",
-                      cursor: "pointer"
-                    }
-                  }),
-                  new Element("label", {
-                    innerHTML: option.value,
-                    for: option.value + poll.id.toString(),
-                    style: {
-                      cursor: "pointer"
-                    }
-                  }),
-                  new Element("progress", {
-                    class: "progress",
-                    value: option.totalVotes,
-                    max: totalVoteCount || 1,
-                    style: {
-                      display: "inline-block",
-                      width: "50%",
-                      marginLeft: "20px"
-                    }
-                  })
-                ]
-              );
-
-              wrapper.renderTo(content);
-            });
-
-            pollListContainer.append(clone);
-          });
-        });
+  function SubmitPollButton(pollId) {
+    function resetLoading(elem) {
+      elem.element.classList.remove("is-loading");
+      elem.element.disabled = false;
+      elem.refresh();
     }
 
+    return new Element("button", {
+      class: "button is-primary is-pulled-right is-medium",
+      style: {
+        marginTop: "16px"
+      },
+      innerHTML: "Submit"
+    }).addEvent("click", function(elem) {
+      elem.element.classList.add("is-loading");
+      elem.element.disabled = true;
+      elem.refresh();
+
+      var selectedPoll = document.querySelector(
+        "div[data-poll='" + pollId + "']"
+      );
+      if (!selectedPoll) {
+        resetLoading(elem);
+
+        return;
+      }
+
+      var selectedOption = selectedPoll.querySelector(
+        "input[type=radio]:checked"
+      );
+
+      submitPollOption(selectedOption.dataset.option).catch(error => {
+        fetchActivePolls();
+
+        return;
+      });
+    });
+  }
+
+  function PollCard(poll) {
+    var clone = document.importNode(
+      document.querySelector("#mob__card").content,
+      true
+    );
+
+    var header = new Element("h2", {
+      innerHTML: poll.question,
+      class: "title"
+    });
+
+    var content = clone.querySelector(".content");
+    content.dataset.poll = poll.id;
+
+    header.renderTo(content);
+
+    const totalVoteCount = poll.options.reduce(
+      (accu, current) => accu + current.totalVotes,
+      0
+    );
+
+    poll.options.forEach(option => {
+      var wrapper = new Element(
+        "div",
+        {
+          style: { marginTop: "12px", display: "flex" }
+        },
+        [
+          new Element(
+            "div",
+            {
+              style: { display: "flex", flex: 1 }
+            },
+            [
+              new Element("input", {
+                type: "radio",
+                id: option.value + poll.id.toString(),
+                name: poll.id.toString(),
+                "data-option": option.id,
+                style: {
+                  marginRight: "5px",
+                  cursor: "pointer"
+                }
+              }),
+              new Element("label", {
+                innerHTML: option.value,
+                for: option.value + poll.id.toString(),
+                style: {
+                  cursor: "pointer"
+                }
+              })
+            ]
+          ),
+          new Element("div", { style: { display: "flex", flex: 2 } }, [
+            new Element("progress", {
+              class: "progress",
+              value: option.totalVotes,
+              max: totalVoteCount || 1
+            })
+          ])
+        ]
+      );
+
+      wrapper.renderTo(content);
+    });
+
+    var submitButton = SubmitPollButton(poll.id);
+    submitButton.renderTo(content);
+
+    return clone;
+  }
+</script>
+
+<script>
+  // --- Actions ---
+
+  var pollListContainer = document.querySelector("#poll_list_container");
+
+  function fetchActivePolls() {
+    return fetch("/api/polls", { method: "GET" })
+      .then(p => {
+        if (p.ok) {
+          return p.json();
+        }
+
+        return Promise.reject(p);
+      })
+      .then(p => {
+        pollListContainer.innerHTML = "";
+
+        p.forEach(poll => {
+          pollListContainer.append(PollCard(poll));
+        });
+      });
+  }
+
+  function submitPollOption(optionId) {
+    return fetch("/api/options/" + optionId, { method: "PUT" })
+      .then(p => {
+        if (p.ok) {
+          return p.json();
+        }
+
+        return Promise.reject(p);
+      })
+      .then(p => {
+        alert(p);
+
+        return p;
+      });
+  }
+
+  window.onload = function() {
     fetchActivePolls();
   };
 </script>
