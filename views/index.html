@@ -22,17 +22,19 @@
 
 <template id="mob__card">
   <div class="box">
-      <div class="media-content">
-        <div class="content">
-        </div>
-      </div>
-    </article>
+    <div class="media-content">
+      <div class="content"></div>
+    </div>
   </div>
 </template>
 
 <script>
+  {% include "./js/element.js" %}
+</script>
+
+<script>
   window.onload = function() {
-    var mobCardTemplate = document.querySelector('#mob__card');
+    var mobCardTemplate = document.querySelector("#mob__card");
 
     var pollListContainer = document.querySelector("#poll_list_container");
 
@@ -50,29 +52,61 @@
 
           p.forEach(poll => {
             var clone = document.importNode(mobCardTemplate.content, true);
-            
-            var header = document.createElement("strong");
-            header.innerHTML = poll.question;
+
+            var header = new Element("strong", {
+              innerHTML: poll.question,
+              style: {
+                marginBottom: "20px",
+                fontSize: "1.4rem"
+              }
+            });
 
             var content = clone.querySelector(".content");
 
-            content.appendChild(header);
+            header.renderTo(content);
 
-            const totalVoteCount = poll.options.reduce((accu, current) => accu + current.totalVotes, 0);
+            const totalVoteCount = poll.options.reduce(
+              (accu, current) => accu + current.totalVotes,
+              0
+            );
 
             poll.options.forEach(option => {
-              var wrapper = document.createElement("div");
-              wrapper.style.marginTop = "10px";
-              wrapper.innerHTML = option.value;
+              var wrapper = new Element(
+                "div",
+                {
+                  style: { marginTop: "10px" }
+                },
+                [
+                  new Element("input", {
+                    type: "radio",
+                    id: option.value + poll.id.toString(),
+                    name: poll.id.toString(),
+                    style: {
+                      marginRight: "5px",
+                      cursor: "pointer"
+                    }
+                  }),
+                  new Element("label", {
+                    innerHTML: option.value,
+                    for: option.value + poll.id.toString(),
+                    style: {
+                      cursor: "pointer"
+                    }
+                  }),
+                  new Element("progress", {
+                    class: "progress",
+                    value: option.totalVotes,
+                    max: totalVoteCount || 1,
+                    style: {
+                      display: "inline-block",
+                      width: "50%",
+                      marginLeft: "20px"
+                    }
+                  })
+                ]
+              );
 
-              var progress = document.createElement("progress");
-              progress.classList.add("progress");
-              progress.value = option.totalVotes;
-              progress.max = totalVoteCount || 1;
-
-              wrapper.appendChild(progress);
-
-              content.appendChild(wrapper);
+              wrapper.renderTo(content);
             });
 
             pollListContainer.append(clone);
