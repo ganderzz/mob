@@ -3,11 +3,16 @@ const nunjucks = require("nunjucks");
 const API = require("./api");
 const compression = require("compression");
 const cookieParser = require("cookie-parser");
+const path = require("path");
+const { BASE_URL } = require("./utils/path");
 
 const app = express();
+
 app.use(compression());
 app.use(cookieParser());
 app.use(express.json());
+
+app.use("/public", express.static(path.resolve(BASE_URL, "views", "public")));
 
 const http = require("http").createServer(app);
 
@@ -23,5 +28,5 @@ http.listen(3000, function() {
   db.init();
   db.close();
 
-  console.log("listening on *:3000");
+  console.log("listening on localhost:3000");
 });

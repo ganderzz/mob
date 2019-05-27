@@ -27,7 +27,7 @@ module.exports = function(app) {
 
       const pass = req.body.value;
 
-      if (pass === "test") {
+      if (pass === (process.env.MOB_LOGIN_PASSWORD | "MOB")) {
         res.cookie("auth", true, { maxAge: 24 * 60 * 60 * 60 });
       } else {
         throw new Error("Invalid password given.");
