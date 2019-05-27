@@ -136,7 +136,7 @@ class API {
         throw new Error("Poll is missing a question.");
       }
 
-      if (!poll.options) {
+      if (!poll.options || poll.options.length < 1) {
         throw new Error("A poll must be created with options.");
       }
 
@@ -144,10 +144,10 @@ class API {
 
       db.run(
         `INSERT INTO polls 
-    (question, isActive) 
-    VALUES (?, 1)
-  `,
-        poll.question,
+          (question, isActive) 
+          VALUES (?, 1)
+        `,
+        [poll.question],
         function(err) {
           if (err) {
             throw new Error(err);
@@ -158,8 +158,9 @@ class API {
           poll.options.forEach(val => {
             db.run(
               `INSERT INTO options 
-          (pollId, value, totalVotes) 
-          VALUES (?, ?, 0)`,
+              (pollId, value, totalVotes) 
+              VALUES (?, ?, 0)
+              `,
               [pollId, val]
             );
           });

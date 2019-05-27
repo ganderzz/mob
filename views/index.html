@@ -195,12 +195,10 @@
           return p.json();
         }
 
-        return Promise.reject(p);
+        return p.json().then(error => Promise.reject(error));
       })
-      .then(p => {
-        alert(p);
-
-        return p;
+      .catch(error => {
+        alert(error.message);
       });
   }
 

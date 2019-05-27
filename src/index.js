@@ -4,9 +4,12 @@ const API = require("./api");
 const compression = require("compression");
 const cookieParser = require("cookie-parser");
 const path = require("path");
+const helmet = require("helmet");
 const { BASE_URL } = require("./utils/path");
 
 const app = express();
+
+app.use(helmet());
 
 app.use(compression());
 app.use(cookieParser());

@@ -19,13 +19,17 @@
 
     <div>
       <label class="label">Question:</label>
-      <input class="input" type="text" id="question" />
+      <textarea
+        class="input"
+        id="question"
+        style="min-height: 100px;"
+        placeholder="Enter the question for the poll"
+      ></textarea>
     </div>
 
-    <hr style="margin: 1rem 0;" />
+    <label class="label" style="margin-top: 15px;">Options:</label>
+    <ul id="options__list" style="margin-bottom: 15px;"></ul>
 
-    <label class="label">Options:</label>
-    <ul id="options__list"></ul>
     <button
       id="add__option"
       class="button is-primary"
@@ -45,20 +49,32 @@
 </section>
 
 <script>
+  {% include "./js/element.js" %}
+</script>
+
+<script>
   window.onload = function() {
     document
       .querySelector("#add__option")
       .addEventListener("click", function(e) {
         e.preventDefault();
-        var itemWrapper = document.createElement("li");
 
-        var item = document.createElement("input");
-        item.classList.add("option");
-        item.classList.add("input");
+        var itemWrapper = new Element(
+          "li",
+          {
+            style: {
+              marginTop: "10px"
+            }
+          },
+          [
+            new Element("input", {
+              class: "option input",
+              placeholder: "Enter poll option"
+            })
+          ]
+        );
 
-        itemWrapper.appendChild(item);
-
-        document.querySelector("#options__list").appendChild(itemWrapper);
+        itemWrapper.renderTo(document.querySelector("#options__list"));
       });
 
     document
@@ -89,13 +105,14 @@
           .then(p => {
             if (p.ok) {
               alert("Poll created.");
+              window.location.reload();
               return;
             }
 
-            return p.text().then(Promise.reject);
+            return p.json().then(p => Promise.reject(p));
           })
           .catch(error => {
-            alert(error);
+            alert(error.message);
           });
       });
   };

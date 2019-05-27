@@ -33,7 +33,7 @@ module.exports = function(app) {
         throw new Error("Invalid password given.");
       }
 
-      res.send(true);
+      res.send(JSON.stringify(true));
     })
   );
 
@@ -42,7 +42,7 @@ module.exports = function(app) {
     asyncMiddleware(async (req, res) => {
       const result = await new API().getActivePolls();
 
-      res.send(result);
+      res.send(JSON.stringify(result));
     })
   );
 
@@ -55,7 +55,7 @@ module.exports = function(app) {
 
       const result = await new API().getPollById(req.params.id);
 
-      res.send(result);
+      res.send(JSON.stringify(result));
     })
   );
 
@@ -64,16 +64,16 @@ module.exports = function(app) {
     asyncMiddleware(async (req, res) => {
       const result = await new API().createPoll(req.body);
 
-      res.send(result);
+      res.send(JSON.stringify(result));
     })
   );
 
   app.put(
     "/api/options/:optionId",
     asyncMiddleware(async (req, res) => {
-      const result = await new API().updateOptionCount(req.params.optionId);
+      await new API().updateOptionCount(req.params.optionId);
 
-      res.send(result);
+      res.send(JSON.stringify(true));
     })
   );
 };
