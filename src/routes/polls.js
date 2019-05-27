@@ -5,14 +5,37 @@ module.exports = function(app) {
   // ---- Views ----
 
   app.get("/", function(req, res) {
-    res.render("index.html");
+    res.render("index.html", { isAdmin: req.cookies.auth });
   });
 
   app.get("/admin", function(req, res) {
-    res.render("admin.html");
+    res.render("admin.html", { isAdmin: req.cookies.auth });
+  });
+
+  app.get("/login", function(req, res) {
+    res.render("login.html", { isAdmin: req.cookies.auth });
   });
 
   // ---- API ----
+
+  app.post(
+    "/api/login",
+    asyncMiddleware(async (req, res) => {
+      if (!req.body) {
+        throw new Error("Invalid password given.");
+      }
+
+      const pass = req.body.value;
+
+      if (pass === "test") {
+        res.cookie("auth", true, { maxAge: 24 * 60 * 60 * 60 });
+      } else {
+        throw new Error("Invalid password given.");
+      }
+
+      res.send(true);
+    })
+  );
 
   app.get(
     "/api/polls",

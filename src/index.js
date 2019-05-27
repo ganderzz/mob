@@ -2,9 +2,11 @@ const express = require("express");
 const nunjucks = require("nunjucks");
 const API = require("./api");
 const compression = require("compression");
+const cookieParser = require("cookie-parser");
 
 const app = express();
 app.use(compression());
+app.use(cookieParser());
 app.use(express.json());
 
 const http = require("http").createServer(app);

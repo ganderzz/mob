@@ -8,7 +8,7 @@
       </h1>
 
       <h2 class="subtitle">
-        These are the active polls.
+        Polls in progress.
       </h2>
     </div>
   </div>
@@ -58,6 +58,7 @@
       );
       if (!selectedPoll) {
         resetLoading(elem);
+        alert("Could not find poll.");
 
         return;
       }
@@ -66,11 +67,24 @@
         "input[type=radio]:checked"
       );
 
-      submitPollOption(selectedOption.dataset.option).catch(error => {
-        fetchActivePolls();
+      if (!selectedOption) {
+        resetLoading(elem);
+        alert("Missing selection for this poll.");
 
         return;
-      });
+      }
+
+      submitPollOption(selectedOption.dataset.option)
+        .then(response => {
+          fetchActivePolls();
+
+          return;
+        })
+        .catch(error => {
+          alert(error.toString());
+
+          resetLoading(elem);
+        });
     });
   }
 
@@ -128,6 +142,10 @@
             ]
           ),
           new Element("div", { style: { display: "flex", flex: 2 } }, [
+            new Element("span", {
+              innerHTML: option.totalVotes + "/" + totalVoteCount,
+              style: { marginRight: "10px" }
+            }),
             new Element("progress", {
               class: "progress",
               value: option.totalVotes,

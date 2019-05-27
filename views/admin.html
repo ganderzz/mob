@@ -1,5 +1,4 @@
-{% include "head.html" %}
-
+{% include "head.html" %} {% if isAdmin %}
 <section class="hero is-info">
   <div class="hero-body">
     <div class="container">
@@ -102,4 +101,10 @@
   };
 </script>
 
-{% include "footer.html" %}
+{% else %}
+
+<div style="text-align: center; margin-top: 20px;">
+  <h2 class="title">Not Authorized</h2>
+</div>
+
+{% endif %} {% include "footer.html" %}

@@ -1,0 +1,63 @@
+{% include "head.html" %}
+
+<section class="section">
+  <div class="container">
+    <div class="field">
+      <label class="label">Password</label>
+      <div class="control">
+        <input
+          id="login__password"
+          class="input"
+          type="password"
+          placeholder=""
+          value=""
+        />
+      </div>
+    </div>
+
+    <button id="login__button" class="button is-primary">Login</button>
+  </div>
+</section>
+
+<script>
+  {% include "./js/element.js" %}
+</script>
+
+<script>
+  // --- Actions ---
+
+  function login(value) {
+    return fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        value: value
+      })
+    })
+      .then(p => {
+        if (p.ok) {
+          return p.json();
+        }
+
+        return Promise.reject(p);
+      })
+      .then(p => {
+        window.location.replace("/");
+      })
+      .catch(error => {
+        error.text().then(alert);
+      });
+  }
+
+  window.onload = function() {
+    var passwordInput = document.querySelector("#login__password");
+
+    document
+      .querySelector("#login__button")
+      .addEventListener("click", function() {
+        login(passwordInput.value);
+      });
+  };
+</script>
+
+{% include "footer.html" %}
