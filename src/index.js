@@ -22,6 +22,7 @@ const http = require("http").createServer(app);
 
 nunjucks.configure("views", {
   autoescape: true,
+  watch: process.env.NODE_ENV !== "production" ? true : false,
   express: app
 });
 

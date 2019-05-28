@@ -16,14 +16,14 @@
 
 <section class="section" style="min-height: calc(100vh - 381px);">
   <div class="container">
-    <div id="poll_list_container"></div>
+    <div id="poll_list_container">😮 Empty. Once a poll is created it'll appear here!</div>
   </div>
 </section>
 
 <template id="mob__card">
   <div class="box">
     <div class="media-content">
-      <div class="content	is-clearfix">Empty</div>
+      <div class="content	is-clearfix"></div>
     </div>
   </div>
 </template>
@@ -179,10 +179,14 @@
 
         return Promise.reject(p);
       })
-      .then(p => {
+      .then(polls => {
+        if (!polls || polls.length < 1) {
+          return;
+        }
+
         pollListContainer.innerHTML = "";
 
-        p.forEach(poll => {
+        polls.forEach(poll => {
           pollListContainer.append(PollCard(poll));
         });
       });
