@@ -1,6 +1,7 @@
 const express = require("express");
+var fs = require("fs");
 const nunjucks = require("nunjucks");
-const API = require("./api");
+const PollsRepository = require("./repositories/pollsRepository");
 const compression = require("compression");
 const cookieParser = require("cookie-parser");
 const path = require("path");
@@ -25,10 +26,19 @@ nunjucks.configure("views", {
 });
 
 require("./routes/polls")(app);
+require("./routes/views")(app);
+require("./routes/auth")(app);
 
-http.listen(3000, function() {
-  const db = new API();
-  db.init();
+http.listen(3000, async () => {
+  const databaseDirectory = "./db";
+
+  // Create DB directory if it doesn't exist
+  if (!fs.existsSync(databaseDirectory)) {
+    fs.mkdirSync(databaseDirectory);
+  }
+
+  const db = new PollsRepository();
+  await db.init();
   db.close();
 
   console.log("listening on localhost:3000");

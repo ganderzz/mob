@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<head>
+  <title>MOB</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="32x32"
+    href="/public/favicon-32x32.png"
+  />
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="16x16"
+    href="/public/favicon-16x16.png"
+  />
+
+  <style>
+    *,
+    *::after,
+    *::before {
+      box-sizing: border-box !important;
+    }
+  </style>
+
+  <style>
+    {% include "bulma.css" %}
+  </style>
+</head>
+
+<body>
+  <nav class="navbar is-link" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+      <a href="/" class="navbar-item" style="font-weight: 700;">
+        MOB
+      </a>
+    </div>
+
+    <div class="navbar-menu">
+      <div class="navbar-start">
+        <a href="/" class="navbar-item">Polls</a>
+        {% if isAdmin %}
+        <a href="/admin" class="navbar-item">Admin</a>
+        {% endif %}
+      </div>
+
+      <div class="navbar-end">
+        {% if not isAdmin %}
+        <div class="navbar-item">
+          <div class="buttons">
+            <a href="/login" class="button is-primary">
+              <strong>Login</strong>
+            </a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </nav>

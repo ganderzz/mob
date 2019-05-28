@@ -1,4 +1,4 @@
-{% include "head.html" %}
+{% include "head.njk" %}
 
 <section class="hero is-info">
   <div class="hero-body">
@@ -14,7 +14,7 @@
   </div>
 </section>
 
-<section class="section">
+<section class="section" style="min-height: calc(100vh - 381px);">
   <div class="container">
     <div id="poll_list_container"></div>
   </div>
@@ -23,7 +23,7 @@
 <template id="mob__card">
   <div class="box">
     <div class="media-content">
-      <div class="content	is-clearfix"></div>
+      <div class="content	is-clearfix">Empty</div>
     </div>
   </div>
 </template>
@@ -74,7 +74,7 @@
         return;
       }
 
-      submitPollOption(selectedOption.dataset.option)
+      submitPollOption(pollId, selectedOption.dataset.option)
         .then(response => {
           fetchActivePolls();
 
@@ -188,8 +188,10 @@
       });
   }
 
-  function submitPollOption(optionId) {
-    return fetch("/api/options/" + optionId, { method: "PUT" })
+  function submitPollOption(pollId, optionId) {
+    return fetch("/api/polls/" + pollId + "/options/" + optionId, {
+      method: "PUT"
+    })
       .then(p => {
         if (p.ok) {
           return p.json();
@@ -207,4 +209,4 @@
   };
 </script>
 
-{% include "footer.html" %}
+{% include "footer.njk" %}

@@ -1,8 +1,8 @@
 const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
-const { BASE_URL } = require("./utils/path");
+const { BASE_URL } = require("../utils/path");
 
-class API {
+class PollsRepository {
   constructor() {
     this.DB = new sqlite3.Database(path.resolve(BASE_URL, "db", "polls.db"));
   }
@@ -16,32 +16,35 @@ class API {
   init() {
     if (!this.DB) {
       throw new Error("Database is not initialized");
-      return;
     }
 
-    // ----- Tables -----
+    return new Promise(resolve => {
+      // ----- Tables -----
 
-    this.DB.run(
-      `CREATE TABLE IF NOT EXISTS polls (
+      this.DB.run(
+        `CREATE TABLE IF NOT EXISTS polls (
         id INTEGER PRIMARY KEY, 
         question TEXT, 
         isActive INTEGER
       )`
-    );
+      );
 
-    this.DB.run(
-      `CREATE TABLE IF NOT EXISTS options (
+      this.DB.run(
+        `CREATE TABLE IF NOT EXISTS options (
         id INTEGER PRIMARY KEY, 
         pollId INTEGER, 
         value TEXT, 
         totalVotes INTEGER, 
         FOREIGN KEY(pollId) REFERENCES polls(id)
       )`
-    );
+      );
 
-    // ----- Indicies -----
+      // ----- Indicies -----
 
-    this.DB.run(`CREATE INDEX IF NOT EXISTS idx_pollid ON options(pollId)`);
+      this.DB.run(`CREATE INDEX IF NOT EXISTS idx_pollid ON options(pollId)`);
+
+      resolve();
+    });
   }
 
   getActivePolls() {
@@ -172,4 +175,4 @@ class API {
   }
 }
 
-module.exports = API;
+module.exports = PollsRepository;

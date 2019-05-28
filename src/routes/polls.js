@@ -1,46 +1,11 @@
 const asyncMiddleware = require("../middleware/asyncMiddleware");
-const API = require("../api");
+const PollsRepository = require("../repositories/pollsRepository");
 
 module.exports = function(app) {
-  // ---- Views ----
-
-  app.get("/", function(req, res) {
-    res.render("index.html", { isAdmin: req.cookies.auth });
-  });
-
-  app.get("/admin", function(req, res) {
-    res.render("admin.html", { isAdmin: req.cookies.auth });
-  });
-
-  app.get("/login", function(req, res) {
-    res.render("login.html", { isAdmin: req.cookies.auth });
-  });
-
-  // ---- API ----
-
-  app.post(
-    "/api/login",
-    asyncMiddleware(async (req, res) => {
-      if (!req.body) {
-        throw new Error("Invalid password given.");
-      }
-
-      const pass = req.body.value;
-
-      if (pass === (process.env.MOB_LOGIN_PASSWORD || "MOB")) {
-        res.cookie("auth", true, { maxAge: 24 * 60 * 60 * 60 });
-      } else {
-        throw new Error("Invalid password given.");
-      }
-
-      res.send(JSON.stringify(true));
-    })
-  );
-
   app.get(
     "/api/polls",
     asyncMiddleware(async (req, res) => {
-      const result = await new API().getActivePolls();
+      const result = await new PollsRepository().getActivePolls();
 
       res.send(JSON.stringify(result));
     })
@@ -53,7 +18,7 @@ module.exports = function(app) {
         throw new Error("Invalid id provided.");
       }
 
-      const result = await new API().getPollById(req.params.id);
+      const result = await new PollsRepository().getPollById(req.params.id);
 
       res.send(JSON.stringify(result));
     })
@@ -62,16 +27,23 @@ module.exports = function(app) {
   app.post(
     "/api/polls",
     asyncMiddleware(async (req, res) => {
-      const result = await new API().createPoll(req.body);
+      const result = await new PollsRepository().createPoll(req.body);
 
       res.send(JSON.stringify(result));
     })
   );
 
   app.put(
-    "/api/options/:optionId",
+    "/api/polls/:pollId/options/:optionId",
     asyncMiddleware(async (req, res) => {
-      await new API().updateOptionCount(req.params.optionId);
+      const optionId = req.params.optionId;
+      const pollId = req.params.pollId;
+
+      await new PollsRepository().updateOptionCount(optionId);
+
+      res.cookie(pollId.toString(), optionId.toString(), {
+        maxAge: 99999999999
+      });
 
       res.send(JSON.stringify(true));
     })
