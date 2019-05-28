@@ -1,5 +1,14 @@
 {% include "head.njk" %}
 
+<script>
+{% if poll %}
+var injectedPoll = {{poll}};
+{% else %}
+var injectedPoll = null;
+{% endif %}
+</script>
+
+{% if not poll %}
 <section class="hero is-info">
   <div class="hero-body">
     <div class="container">
@@ -13,6 +22,7 @@
     </div>
   </div>
 </section>
+{% endif %}
 
 <section class="section" style="min-height: calc(100vh - 381px);">
   <div class="container">
@@ -94,10 +104,21 @@
       true
     );
 
-    var header = new Element("h2", {
-      innerHTML: poll.question,
-      class: "title"
-    });
+    var header = new Element(
+      "div", 
+      { class: "columns" }, 
+      [
+        new Element("h2", {
+          innerHTML: poll.question,
+          class: "title column is-four-fifths"
+        }),
+        new Element("div", 
+          { class: "column", style: { textAlign: "right" } }, 
+          [
+            new Element("a", { href: "/polls/" + poll.id, innerHTML: "Share" })
+          ]
+        )
+    ]);
 
     var content = clone.querySelector(".content");
     content.dataset.poll = poll.id;
@@ -209,7 +230,13 @@
   }
 
   window.onload = function() {
-    fetchActivePolls();
+    if (!injectedPoll) {
+      fetchActivePolls();
+      return;
+    }
+
+    pollListContainer.innerHTML = "";
+    pollListContainer.append(PollCard(injectedPoll));
   };
 </script>
 

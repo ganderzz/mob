@@ -21,7 +21,7 @@ app.use("/public", express.static(path.resolve(BASE_URL, "views", "public")));
 const http = require("http").createServer(app);
 
 nunjucks.configure("views", {
-  autoescape: true,
+  autoescape: false,
   watch: process.env.NODE_ENV !== "production" ? true : false,
   express: app
 });

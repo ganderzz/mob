@@ -123,7 +123,28 @@ class PollsRepository {
           throw new Error(error);
         }
 
-        return resolve(rows);
+        const groupedByPoll = rows.reduce((accu, current) => {
+          return {
+            ...accu,
+            [current.pollId]: {
+              ...(accu[current.pollId] || {}),
+              id: current.pollId,
+              question: current.question,
+              options: [
+                ...(accu[current.pollId] ? accu[current.pollId].options : []),
+                {
+                  id: current.id,
+                  value: current.value,
+                  totalVotes: current.totalVotes
+                }
+              ]
+            }
+          };
+        }, {});
+
+        return resolve(
+          Object.keys(groupedByPoll).map(key => groupedByPoll[key])[0]
+        );
       });
     });
   }
