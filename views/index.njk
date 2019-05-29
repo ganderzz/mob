@@ -6,30 +6,46 @@
         <div class="columns">
           <h2 class="title column is-four-fifths">{{ poll.question }}</h2>
 
-          <a href={{"/polls/" + poll.id}} class="column">Share</a>
+          <a
+            href={{"/polls/" + poll.id}} 
+            style="align-self: center;text-align: right;" 
+            class="column">
+            Share
+          </a>
         </div>
 
         {% for option in poll.options %}
-          <div style="margin-top: 12px; display: flex;">
+          <div style="margin-top: 15px; display: flex;">
             <div style="display: flex; flex: 1;">
-              <input type="radio" data-optionid={{option.id}} id={{option.value + poll.id}} name={{poll.id}} />
-              <label class="label" for={{option.value + poll.id}} style="cursor: pointer; display: inline-block; margin-left: 5px;">{{option.value}}</label>
+              {% if not poll.votedOption %}
+                <input type="radio" data-optionid={{option.id}} id={{option.value + poll.id}} name={{poll.id}} />
+                <label class="label" for={{option.value + poll.id}} style="cursor: pointer; display: inline-block; margin-left: 5px;">{{option.value}}</label>
+              {% else %}
+                {% if poll.votedOption == option.id %}
+                  <strong>{{option.value}}</strong>
+                {% else %}
+                  {{option.value}}
+                {% endif %}
+              {% endif %}
             </div>
 
             <div style="display: flex; flex: 2;">
-              <progress class="progress" value={{option.totalVotes}} />
+              <span style="margin-right: 5px;">{{option.totalVotes}}/{{poll.totalVotes}}</span>
+              <progress class="progress" value={{option.totalVotes}} max={{poll.totalVotes}} />
             </div>
           </div>
         {% else %}
             No questions for this poll
         {% endfor %}
 
+{% if not poll.votedOption %}
         <button
           class="button is-primary is-pulled-right is-medium submit__btn"
           data-pollid={{poll.id}}
         >
           Submit
         </button>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -38,6 +54,7 @@
 
 {% include "head.njk" %}
 
+{% if not shouldHideHero %}
 <section class="hero is-info">
   <div class="hero-body">
     <div class="container">
@@ -51,6 +68,7 @@
     </div>
   </div>
 </section>
+{% endif %}
 
 <section class="section" style="min-height: calc(100vh - 381px);">
   <div class="container">

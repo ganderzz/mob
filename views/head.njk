@@ -20,12 +20,12 @@
     *,
     *::after,
     *::before {
-      box-sizing: border-box !important;
+      box-sizing: border-box;
     }
   </style>
 
   <style>
-    {% include "bulma.css" %}
+    {% include "public/bulma.css" %}
   </style>
 </head>
 
@@ -40,20 +40,29 @@
     <div class="navbar-menu">
       <div class="navbar-start">
         <a href="/" class="navbar-item">Polls</a>
+
         {% if isAdmin %}
-        <a href="/admin" class="navbar-item">Admin</a>
+          <a href="/admin" class="navbar-item">Admin</a>
         {% endif %}
       </div>
 
       <div class="navbar-end">
         {% if not isAdmin %}
-        <div class="navbar-item">
-          <div class="buttons">
-            <a href="/login" class="button is-primary">
-              <strong>Login</strong>
-            </a>
+          <div class="navbar-item">
+            <div class="buttons">
+              <a href="/login" class="button is-primary">
+                <strong>Login</strong>
+              </a>
+            </div>
           </div>
-        </div>
+        {% else %}
+          <div class="navbar-item">
+            <div class="buttons">
+              <a href="/logout" class="button is-warning">
+                <strong>Logout</strong>
+              </a>
+            </div>
+          </div>
         {% endif %}
       </div>
     </div>

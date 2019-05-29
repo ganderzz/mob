@@ -3,9 +3,25 @@ const PollsRepository = require("../repositories/pollsRepository");
 
 module.exports = function(app) {
   app.get("/", async (req, res) => {
-    const polls = await new PollsRepository().getActivePolls();
+    let polls = await new PollsRepository().getActivePolls();
 
-    res.render("index.njk", { isAdmin: req.cookies.auth, polls: polls });
+    if (polls) {
+      polls = polls.map(p => {
+        return {
+          ...p,
+          totalVotes: p.options.reduce(
+            (accu, current) => accu + current.totalVotes,
+            0
+          ),
+          votedOption: req.cookies[p.id]
+        };
+      });
+    }
+
+    res.render("index.njk", {
+      isAdmin: req.cookies.auth,
+      polls: polls
+    });
   });
 
   app.get("/polls/:pollId", async (req, res) => {
@@ -13,6 +29,8 @@ module.exports = function(app) {
 
     res.render("index.njk", {
       isAdmin: req.cookies.auth,
+      shouldHideFooter: true,
+      shouldHideHero: true,
       polls: [poll]
     });
   });
