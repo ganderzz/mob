@@ -1,14 +1,43 @@
+{# Macros #}
+{% macro pollCard(poll) %}
+  <div class="box">
+    <div class="media-content">
+      <div class="content	is-clearfix">
+        <div class="columns">
+          <h2 class="title column is-four-fifths">{{ poll.question }}</h2>
+
+          <a href={{"/polls/" + poll.id}} class="column">Share</a>
+        </div>
+
+        {% for option in poll.options %}
+          <div style="margin-top: 12px; display: flex;">
+            <div style="display: flex; flex: 1;">
+              <input type="radio" data-optionid={{option.id}} id={{option.value + poll.id}} name={{poll.id}} />
+              <label class="label" for={{option.value + poll.id}} style="cursor: pointer; display: inline-block; margin-left: 5px;">{{option.value}}</label>
+            </div>
+
+            <div style="display: flex; flex: 2;">
+              <progress class="progress" value={{option.totalVotes}} />
+            </div>
+          </div>
+        {% else %}
+            No questions for this poll
+        {% endfor %}
+
+        <button
+          class="button is-primary is-pulled-right is-medium submit__btn"
+          data-pollid={{poll.id}}
+        >
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+{# ----- #}
+
 {% include "head.njk" %}
 
-<script>
-{% if poll %}
-var injectedPoll = {{poll}};
-{% else %}
-var injectedPoll = null;
-{% endif %}
-</script>
-
-{% if not poll %}
 <section class="hero is-info">
   <div class="hero-body">
     <div class="container">
@@ -22,196 +51,54 @@ var injectedPoll = null;
     </div>
   </div>
 </section>
-{% endif %}
 
 <section class="section" style="min-height: calc(100vh - 381px);">
   <div class="container">
-    <div id="poll_list_container">😮 Empty. Once a poll is created it'll appear here!</div>
-  </div>
-</section>
-
-<template id="mob__card">
-  <div class="box">
-    <div class="media-content">
-      <div class="content	is-clearfix"></div>
+    <div id="poll_list_container">
+      {% for poll in polls %}
+        {{ pollCard(poll) }}
+      {% else %}
+        😮 Empty. Once a poll is created it'll appear here!
+      {% endfor %}
     </div>
   </div>
-</template>
+</section>
 
 <script>
   {% include "./js/element.js" %}
 </script>
 
 <script>
-  // --- Components ---
+  document.querySelector(".submit__btn").addEventListener("click", function(event) {
+    var target = event && event.currentTarget;
 
-  function SubmitPollButton(pollId) {
-    function resetLoading(elem) {
-      elem.element.classList.remove("is-loading");
-      elem.element.disabled = false;
-      elem.refresh();
+    if (!target) {
+      return;
     }
 
-    return new Element("button", {
-      class: "button is-primary is-pulled-right is-medium",
-      style: {
-        marginTop: "16px"
-      },
-      innerHTML: "Submit"
-    }).addEvent("click", function(elem) {
-      elem.element.classList.add("is-loading");
-      elem.element.disabled = true;
-      elem.refresh();
+    target.classList.add("is-loading");
+    target.disabled = true;
 
-      var selectedPoll = document.querySelector(
-        "div[data-poll='" + pollId + "']"
-      );
-      if (!selectedPoll) {
-        resetLoading(elem);
-        alert("Could not find poll.");
+    var checkedOption = target.parentNode.querySelector("input[type=radio]:checked");
+    var pollId = target.dataset.pollid;
+    var optionId = checkedOption.dataset.optionid;
+
+    if (!pollId || !optionId) {
+      alert("Missing an option for the submitted poll.");
+      return;
+    }
+
+    submitPollOption(pollId, optionId)
+      .then(response => {
+        window.location.reload();
 
         return;
-      }
-
-      var selectedOption = selectedPoll.querySelector(
-        "input[type=radio]:checked"
-      );
-
-      if (!selectedOption) {
-        resetLoading(elem);
-        alert("Missing selection for this poll.");
-
-        return;
-      }
-
-      submitPollOption(pollId, selectedOption.dataset.option)
-        .then(response => {
-          fetchActivePolls();
-
-          return;
-        })
-        .catch(error => {
-          alert(error.toString());
-
-          resetLoading(elem);
-        });
-    });
-  }
-
-  function PollCard(poll) {
-    var clone = document.importNode(
-      document.querySelector("#mob__card").content,
-      true
-    );
-
-    var header = new Element(
-      "div", 
-      { class: "columns" }, 
-      [
-        new Element("h2", {
-          innerHTML: poll.question,
-          class: "title column is-four-fifths"
-        }),
-        new Element("div", 
-          { class: "column", style: { textAlign: "right" } }, 
-          [
-            new Element("a", { href: "/polls/" + poll.id, innerHTML: "Share" })
-          ]
-        )
-    ]);
-
-    var content = clone.querySelector(".content");
-    content.dataset.poll = poll.id;
-
-    header.renderTo(content);
-
-    const totalVoteCount = poll.options.reduce(
-      (accu, current) => accu + current.totalVotes,
-      0
-    );
-
-    poll.options.forEach(option => {
-      var wrapper = new Element(
-        "div",
-        {
-          style: { marginTop: "12px", display: "flex" }
-        },
-        [
-          new Element(
-            "div",
-            {
-              style: { display: "flex", flex: 1 }
-            },
-            [
-              new Element("input", {
-                type: "radio",
-                id: option.value + poll.id.toString(),
-                name: poll.id.toString(),
-                "data-option": option.id,
-                style: {
-                  marginRight: "5px",
-                  cursor: "pointer"
-                }
-              }),
-              new Element("label", {
-                innerHTML: option.value,
-                for: option.value + poll.id.toString(),
-                style: {
-                  cursor: "pointer"
-                }
-              })
-            ]
-          ),
-          new Element("div", { style: { display: "flex", flex: 2 } }, [
-            new Element("span", {
-              innerHTML: option.totalVotes + "/" + totalVoteCount,
-              style: { marginRight: "10px" }
-            }),
-            new Element("progress", {
-              class: "progress",
-              value: option.totalVotes,
-              max: totalVoteCount || 1
-            })
-          ])
-        ]
-      );
-
-      wrapper.renderTo(content);
-    });
-
-    var submitButton = SubmitPollButton(poll.id);
-    submitButton.renderTo(content);
-
-    return clone;
-  }
-</script>
-
-<script>
-  // --- Actions ---
-
-  var pollListContainer = document.querySelector("#poll_list_container");
-
-  function fetchActivePolls() {
-    return fetch("/api/polls", { method: "GET" })
-      .then(p => {
-        if (p.ok) {
-          return p.json();
-        }
-
-        return Promise.reject(p);
       })
-      .then(polls => {
-        if (!polls || polls.length < 1) {
-          return;
-        }
-
-        pollListContainer.innerHTML = "";
-
-        polls.forEach(poll => {
-          pollListContainer.append(PollCard(poll));
-        });
+      .catch(error => {
+          target.classList.remove("is-loading");
+          target.disabled = false;
       });
-  }
+  });
 
   function submitPollOption(pollId, optionId) {
     return fetch("/api/polls/" + pollId + "/options/" + optionId, {
@@ -228,16 +115,6 @@ var injectedPoll = null;
         alert(error.message);
       });
   }
-
-  window.onload = function() {
-    if (!injectedPoll) {
-      fetchActivePolls();
-      return;
-    }
-
-    pollListContainer.innerHTML = "";
-    pollListContainer.append(PollCard(injectedPoll));
-  };
 </script>
 
 {% include "footer.njk" %}

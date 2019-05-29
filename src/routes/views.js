@@ -2,8 +2,10 @@ const asyncMiddleware = require("../middleware/asyncMiddleware");
 const PollsRepository = require("../repositories/pollsRepository");
 
 module.exports = function(app) {
-  app.get("/", function(req, res) {
-    res.render("index.njk", { isAdmin: req.cookies.auth });
+  app.get("/", async (req, res) => {
+    const polls = await new PollsRepository().getActivePolls();
+
+    res.render("index.njk", { isAdmin: req.cookies.auth, polls: polls });
   });
 
   app.get("/polls/:pollId", async (req, res) => {
@@ -11,7 +13,7 @@ module.exports = function(app) {
 
     res.render("index.njk", {
       isAdmin: req.cookies.auth,
-      poll: JSON.stringify(poll)
+      polls: [poll]
     });
   });
 
