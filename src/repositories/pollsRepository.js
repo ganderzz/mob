@@ -3,8 +3,26 @@ const sqlite3 = require("sqlite3").verbose();
 const { BASE_URL } = require("../utils/path");
 
 class PollsRepository {
-  constructor() {
-    this.DB = new sqlite3.Database(path.resolve(BASE_URL, "db", "polls.db"));
+  constructor(options = { shouldInit: false }) {
+    this.DB = new sqlite3.Database(
+      path.resolve(BASE_URL, "db", "polls.db"),
+      sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
+      async error => {
+        if (error) {
+          console.log(error);
+          return;
+        }
+
+        if (options.shouldInit) {
+          try {
+            return await this.init();
+          } catch (error) {
+            console.log(error);
+            return;
+          }
+        }
+      }
+    );
   }
 
   close() {
@@ -14,11 +32,11 @@ class PollsRepository {
   }
 
   init() {
-    if (!this.DB) {
-      throw new Error("Database is not initialized");
-    }
+    return new Promise((resolve, reject) => {
+      if (!this.DB) {
+        throw reject("Database is not initialized");
+      }
 
-    return new Promise(resolve => {
       // ----- Tables -----
 
       this.DB.run(

@@ -1,19 +1,22 @@
 {% include "head.njk" %} 
 
-{% if isAdmin %}
-<section class="hero is-info">
-  <div class="hero-body">
-    <div class="container">
-      <h1 class="title">
-        Admin
-      </h1>
+{%- if isAdmin -%}
 
-      <h2 class="subtitle">
-        Administrative functionality for MOB.
-      </h2>
+{%- if title or subtitle %}
+  <section class="hero is-info">
+    <div class="hero-body">
+      <div class="container">
+        <h1 class="title">
+          {{title}}
+        </h1>
+
+        <h2 class="subtitle">
+        {{subtitle}}
+        </h2>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+{% endif %}
 
 <section class="section">
   <form class="container">
@@ -51,7 +54,7 @@
 </section>
 
 <script>
-  {% include "./js/element.js" %}
+  {%- include "./js/element.js" -%}
 </script>
 
 <script>
@@ -91,7 +94,7 @@
           return;
         }
 
-        let optionValues = [];
+        var optionValues = [];
         options.forEach(p => {
           optionValues.push(p.value);
         });

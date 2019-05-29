@@ -1,4 +1,3 @@
-const asyncMiddleware = require("../middleware/asyncMiddleware");
 const PollsRepository = require("../repositories/pollsRepository");
 
 module.exports = function(app) {
@@ -19,24 +18,43 @@ module.exports = function(app) {
     }
 
     res.render("index.njk", {
+      title: "Active Polls",
+      subtitle: "Polls in progress.",
       isAdmin: req.cookies.auth,
       polls: polls
     });
   });
 
   app.get("/polls/:pollId", async (req, res) => {
-    const poll = await new PollsRepository().getPollById(req.params.pollId);
+    let polls = [await new PollsRepository().getPollById(req.params.pollId)];
+
+    if (polls) {
+      polls = polls.map(p => {
+        return {
+          ...p,
+          totalVotes: p.options.reduce(
+            (accu, current) => accu + current.totalVotes,
+            0
+          ),
+          votedOption: req.cookies[p.id]
+        };
+      });
+    }
 
     res.render("index.njk", {
       isAdmin: req.cookies.auth,
       shouldHideFooter: true,
       shouldHideHero: true,
-      polls: [poll]
+      polls: polls
     });
   });
 
   app.get("/admin", function(req, res) {
-    res.render("admin.njk", { isAdmin: req.cookies.auth });
+    res.render("admin.njk", {
+      title: "Admin",
+      subtitle: "Administrative functionality for MOB.",
+      isAdmin: req.cookies.auth
+    });
   });
 
   app.get("/login", function(req, res) {

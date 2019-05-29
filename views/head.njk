@@ -25,7 +25,7 @@
   </style>
 
   <style>
-    {% include "public/bulma.css" %}
+    {%- include "public/bulma.css" -%}
   </style>
 </head>
 
@@ -41,13 +41,13 @@
       <div class="navbar-start">
         <a href="/" class="navbar-item">Polls</a>
 
-        {% if isAdmin %}
+        {%- if isAdmin -%}
           <a href="/admin" class="navbar-item">Admin</a>
-        {% endif %}
+        {%- endif -%}
       </div>
 
       <div class="navbar-end">
-        {% if not isAdmin %}
+        {%- if not isAdmin -%}
           <div class="navbar-item">
             <div class="buttons">
               <a href="/login" class="button is-primary">
@@ -55,7 +55,7 @@
               </a>
             </div>
           </div>
-        {% else %}
+        {%- else -%}
           <div class="navbar-item">
             <div class="buttons">
               <a href="/logout" class="button is-warning">
@@ -63,7 +63,7 @@
               </a>
             </div>
           </div>
-        {% endif %}
+        {%- endif -%}
       </div>
     </div>
   </nav>

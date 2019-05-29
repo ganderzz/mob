@@ -38,13 +38,13 @@
             No questions for this poll
         {% endfor %}
 
-{% if not poll.votedOption %}
-        <button
-          class="button is-primary is-pulled-right is-medium submit__btn"
-          data-pollid={{poll.id}}
-        >
-          Submit
-        </button>
+        {% if not poll.votedOption %}
+          <button
+            class="button is-primary is-pulled-right is-medium submit__btn"
+            data-pollid={{poll.id}}
+          >
+            Submit
+          </button>
         {% endif %}
       </div>
     </div>
@@ -54,20 +54,20 @@
 
 {% include "head.njk" %}
 
-{% if not shouldHideHero %}
-<section class="hero is-info">
-  <div class="hero-body">
-    <div class="container">
-      <h1 class="title">
-        Active Polls
-      </h1>
+{% if title or subtitle %}
+  <section class="hero is-info">
+    <div class="hero-body">
+      <div class="container">
+        <h1 class="title">
+          {{title}}
+        </h1>
 
-      <h2 class="subtitle">
-        Polls in progress.
-      </h2>
+        <h2 class="subtitle">
+          {{subtitle}}
+        </h2>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 {% endif %}
 
 <section class="section" style="min-height: calc(100vh - 381px);">
