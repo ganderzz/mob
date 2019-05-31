@@ -1,124 +1,34 @@
 {# Macros #}
-{% import "macros/hero.html" as h %}
+{%- import "macros/pollCard.html" as pc -%}
+{%- import "macros/hero.html" as h -%}
+{%- import "macros/admin-tab.html" as tab -%}
 {# ----- #}
 
-{% include "head.njk" %}
+{%- include "head.njk" -%}
 
 {%- if isAdmin -%}
 
-{{ h.hero(title, subtitle) }}
+  {{ h.hero(title, subtitle) }}
 
-<section class="section">
-  <form class="container">
-    <h3 class="title is-3">Create Poll</h3>
+  <section class="section" style="padding-top: 1.5rem;">
+    {%- block tabs -%}
+      {{ tab.adminTab(-1) }}
+    {%- endblock -%}
+    {%- block content -%}
+      Currently Empty. Click a tab above.
+    {%- endblock -%}
+  </section>
 
-    <div>
-      <label class="label">Question:</label>
-      <textarea
-        class="input"
-        id="question"
-        style="min-height: 100px;"
-        placeholder="Enter the question for the poll"
-      ></textarea>
-    </div>
+  <script>
+    {%- include "./js/element.js" -%}
+  </script>
 
-    <label class="label" style="margin-top: 15px;">Options:</label>
-    <ul id="options__list" style="margin-bottom: 15px;"></ul>
+{%- else -%}
 
-    <button
-      id="add__option"
-      class="button is-primary"
-      style="margin-top: 10px;"
-    >
-      + Add Option
-    </button>
+  <div style="text-align: center; margin-top: 20px; margin-bottom: 20px;">
+    <h2 class="title">Not Authorized</h2>
+  </div>
 
-    <button
-      id="create__poll"
-      class="button is-success is-pulled-right"
-      style="margin-top: 10px;"
-    >
-      Create Poll
-    </button>
-  </form>
-</section>
+{%- endif -%}
 
-<script>
-  {%- include "./js/element.js" -%}
-</script>
-
-<script>
-  window.onload = function() {
-    document
-      .querySelector("#add__option")
-      .addEventListener("click", function(e) {
-        e.preventDefault();
-
-        var itemWrapper = new Element(
-          "li",
-          {
-            style: {
-              marginTop: "10px"
-            }
-          },
-          [
-            new Element("input", {
-              class: "option input",
-              placeholder: "Enter poll option"
-            })
-          ]
-        );
-
-        itemWrapper.renderTo(document.querySelector("#options__list"));
-      });
-
-    document
-      .querySelector("#create__poll")
-      .addEventListener("click", function(e) {
-        e.preventDefault();
-
-        const options = document.querySelectorAll(".option");
-
-        if (!options) {
-          alert("Missing options for this poll.");
-          return;
-        }
-
-        var optionValues = [];
-        options.forEach(p => {
-          optionValues.push(p.value);
-        });
-
-        fetch("/api/polls", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            question: document.querySelector("#question").value,
-            options: optionValues
-          })
-        })
-          .then(p => {
-            if (p.ok) {
-              alert("Poll created.");
-              window.location.reload();
-              return;
-            }
-
-            return p.json().then(p => Promise.reject(p));
-          })
-          .catch(error => {
-            alert(error.message);
-          });
-      });
-  };
-</script>
-
-{% else %}
-
-<div style="text-align: center; margin-top: 20px; margin-bottom: 20px;">
-  <h2 class="title">Not Authorized</h2>
-</div>
-
-{% endif %} 
-
-{% include "footer.njk" %}
+{%- include "footer.njk" -%}

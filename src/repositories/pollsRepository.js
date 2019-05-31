@@ -104,6 +104,22 @@ class PollsRepository {
     });
   }
 
+  closePoll(pollId) {
+    if (pollId == null) {
+      return Promise.reject("Invalid Poll ID.");
+    }
+
+    return new Promise(resolve => {
+      this.DB.run(
+        `UPDATE polls SET isActive = 0 WHERE id = ?`,
+        [pollId],
+        function() {
+          resolve(true);
+        }
+      );
+    });
+  }
+
   updateOptionCount(optionId) {
     if (optionId == null || optionId == undefined) {
       return Promise.reject("Invalid option id provided.");

@@ -1,0 +1,21 @@
+{% macro adminTab(activeIndex = 0) %}
+  {% set options = [
+    {
+      name: "Create Poll",
+      href: "/admin/polls/create"
+    }, {
+      name: "Manage Active Polls",
+      href: "/admin/polls/active"
+    }
+  ] %}
+
+  <div class="tabs">
+    <ul>
+      {% for option in options %}
+        <li class={% if activeIndex == loop.index0 %}"is-active"{% else %}""{% endif %}>
+          <a href={{option.href}}>{{option.name}}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endmacro %}

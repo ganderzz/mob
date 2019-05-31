@@ -1,23 +1,29 @@
-{% macro pollCard(poll) %}
+{% macro pollCard(poll, isEditing = false) %}
   <div class="box">
     <div class="media-content">
       <div class="content	is-clearfix">
         <div class="columns">
           <h2 class="title column is-four-fifths">{{ poll.question }}</h2>
 
-          <a
+          {% if not isEditing %}
+            <a
             href={{"/polls/" + poll.id}} 
-            style="align-self: center;text-align: right;" 
+            style="text-align: right;" 
             class="column">
             Share
           </a>
+          {% else %}
+            <div class="column" style="text-align: right;">
+              <button data-pollid={{poll.id}} class="button is-danger poll__end">End</button>
+            </div>
+          {% endif %}
         </div>
 
         {% for option in poll.options %}
           <div style="margin-top: 15px; display: flex;">
             <div style="display: flex; flex: 1;">
-              {% if not poll.votedOption %}
-                <input type="radio" data-optionid={{option.id}} id={{option.value + poll.id}} name={{poll.id}} />
+              {% if not poll.votedOption and not isEditing %}
+                <input type="radio" data-optionid={{option.id}} id={{option.value + poll.id}} name={{poll.id}}/>
                 <label class="label" for={{option.value + poll.id}} style="cursor: pointer; display: inline-block; margin-left: 5px;">{{option.value}}</label>
               {% else %}
                 {% if poll.votedOption == option.id %}
@@ -30,16 +36,17 @@
 
             <div style="display: flex; flex: 2;">
               <span style="margin-right: 5px;">{{option.totalVotes}}/{{poll.totalVotes}}</span>
-              <progress class="progress" value={{option.totalVotes}} max={{poll.totalVotes}} />
+              <progress class="progress" value={{option.totalVotes}} max={{poll.totalVotes}}/>
             </div>
           </div>
         {% else %}
             No questions for this poll
         {% endfor %}
 
-        {% if not poll.votedOption %}
+        {% if not poll.votedOption and not isEditing %}
           <button
             class="button is-primary is-pulled-right is-medium submit__btn"
+            style="margin-top: 15px;"
             data-pollid={{poll.id}}
           >
             Submit

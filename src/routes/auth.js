@@ -1,4 +1,5 @@
 const asyncMiddleware = require("../middleware/asyncMiddleware");
+const { getGuid } = require("../utils/hash");
 
 module.exports = function(app) {
   app.post(
@@ -15,7 +16,7 @@ module.exports = function(app) {
       const pass = req.body.value;
 
       if (pass === (process.env.MOB_LOGIN_PASSWORD || "MOB")) {
-        res.cookie("auth", true, { maxAge: 24 * 60 * 60 * 60 });
+        res.cookie("auth", getGuid(), { maxAge: 24 * 60 * 60 * 60 });
       } else {
         throw new Error("Invalid password given.");
       }

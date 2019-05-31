@@ -52,8 +52,40 @@ module.exports = function(app) {
   app.get("/admin", function(req, res) {
     res.render("admin.njk", {
       title: "Admin",
-      subtitle: "Administrative functionality for MOB.",
+      subtitle: "Administrate MOB.",
       isAdmin: req.cookies.auth
+    });
+  });
+
+  app.get("/admin/polls/create", function(req, res) {
+    res.render("admin-create.njk", {
+      title: "Create Poll",
+      subtitle: "Create a new poll.",
+      isAdmin: req.cookies.auth
+    });
+  });
+
+  app.get("/admin/polls/active", async (req, res) => {
+    let polls = await new PollsRepository().getActivePolls();
+
+    if (polls) {
+      polls = polls.map(p => {
+        return {
+          ...p,
+          totalVotes: p.options.reduce(
+            (accu, current) => accu + current.totalVotes,
+            0
+          ),
+          votedOption: req.cookies[p.id]
+        };
+      });
+    }
+
+    res.render("admin-active.njk", {
+      title: "Active Polls",
+      subtitle: "Polls currently running.",
+      isAdmin: req.cookies.auth,
+      polls: polls
     });
   });
 
