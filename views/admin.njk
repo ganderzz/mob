@@ -1,22 +1,12 @@
-{% include "head.njk" %} 
+{# Macros #}
+{% import "macros/hero.html" as h %}
+{# ----- #}
+
+{% include "head.njk" %}
 
 {%- if isAdmin -%}
 
-{%- if title or subtitle %}
-  <section class="hero is-info">
-    <div class="hero-body">
-      <div class="container">
-        <h1 class="title">
-          {{title}}
-        </h1>
-
-        <h2 class="subtitle">
-        {{subtitle}}
-        </h2>
-      </div>
-    </div>
-  </section>
-{% endif %}
+{{ h.hero(title, subtitle) }}
 
 <section class="section">
   <form class="container">
@@ -125,7 +115,7 @@
 
 {% else %}
 
-<div style="text-align: center; margin-top: 20px;">
+<div style="text-align: center; margin-top: 20px; margin-bottom: 20px;">
   <h2 class="title">Not Authorized</h2>
 </div>
 

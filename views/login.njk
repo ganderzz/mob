@@ -1,7 +1,7 @@
 {% include "head.njk" %}
 
 <section class="section">
-  <div class="container">
+  <form class="container">
     <div class="field">
       <label class="label">Password</label>
       <div class="control">
@@ -15,8 +15,8 @@
       </div>
     </div>
 
-    <button id="login__button" class="button is-primary">Login</button>
-  </div>
+    <button type="submit" id="login__button" class="button is-primary">Login</button>
+  </form>
 </section>
 
 <script>
@@ -40,7 +40,7 @@
         window.location.replace("/");
       })
       .catch(error => {
-        error.text().then(alert);
+        error.json().then(err => alert(err.message));
       });
   }
 
@@ -49,7 +49,9 @@
 
     document
       .querySelector("#login__button")
-      .addEventListener("click", function() {
+      .addEventListener("click", function(e) {
+        e.preventDefault();
+
         login(passwordInput.value);
       });
   };
