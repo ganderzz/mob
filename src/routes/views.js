@@ -1,21 +1,16 @@
 const PollsRepository = require("../repositories/pollsRepository");
+const { groupPolls } = require("../utils/polls");
 
 module.exports = function(app) {
+  /**
+   * Render the default 'show all active' page
+   * that most users would see.
+   */
   app.get("/", async (req, res) => {
-    let polls = await new PollsRepository().getActivePolls();
-
-    if (polls) {
-      polls = polls.map(p => {
-        return {
-          ...p,
-          totalVotes: p.options.reduce(
-            (accu, current) => accu + current.totalVotes,
-            0
-          ),
-          votedOption: req.cookies[p.id]
-        };
-      });
-    }
+    const polls = groupPolls(
+      await new PollsRepository().getActivePolls(),
+      req.cookies
+    );
 
     res.render("index.njk", {
       title: "Active Polls",
@@ -25,21 +20,15 @@ module.exports = function(app) {
     });
   });
 
+  /**
+   * Render a single poll. This is mostly used
+   * for sharing a poll with people.
+   */
   app.get("/polls/:pollId", async (req, res) => {
-    let polls = [await new PollsRepository().getPollById(req.params.pollId)];
-
-    if (polls) {
-      polls = polls.map(p => {
-        return {
-          ...p,
-          totalVotes: p.options.reduce(
-            (accu, current) => accu + current.totalVotes,
-            0
-          ),
-          votedOption: req.cookies[p.id]
-        };
-      });
-    }
+    const polls = groupPolls(
+      [await new PollsRepository().getPollById(req.params.pollId)],
+      req.cookies
+    );
 
     res.render("index.njk", {
       isAdmin: req.cookies.auth,
@@ -49,6 +38,10 @@ module.exports = function(app) {
     });
   });
 
+  /**
+   * Render the default admin page
+   * [Currently Empty]
+   */
   app.get("/admin", function(req, res) {
     res.render("admin.njk", {
       title: "Admin",
@@ -57,6 +50,10 @@ module.exports = function(app) {
     });
   });
 
+  /**
+   * Render the create polls page in the admin
+   * view.
+   */
   app.get("/admin/polls/create", function(req, res) {
     res.render("admin-create.njk", {
       title: "Create Poll",
@@ -65,21 +62,15 @@ module.exports = function(app) {
     });
   });
 
+  /**
+   * Render the currently active polls. Allows
+   * for closing and other actions on a poll.
+   */
   app.get("/admin/polls/active", async (req, res) => {
-    let polls = await new PollsRepository().getActivePolls();
-
-    if (polls) {
-      polls = polls.map(p => {
-        return {
-          ...p,
-          totalVotes: p.options.reduce(
-            (accu, current) => accu + current.totalVotes,
-            0
-          ),
-          votedOption: req.cookies[p.id]
-        };
-      });
-    }
+    const polls = groupPolls(
+      await new PollsRepository().getActivePolls(),
+      req.cookies
+    );
 
     res.render("admin-active.njk", {
       title: "Active Polls",
@@ -89,6 +80,9 @@ module.exports = function(app) {
     });
   });
 
+  /**
+   * Render the login screen to access admin functionality.
+   */
   app.get("/login", function(req, res) {
     res.render("login.njk", { isAdmin: req.cookies.auth });
   });

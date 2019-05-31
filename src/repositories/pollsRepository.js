@@ -78,24 +78,7 @@ class PollsRepository {
           return new Error(error);
         }
 
-        const groupedByPoll = rows.reduce((accu, current) => {
-          return {
-            ...accu,
-            [current.pollId]: {
-              ...(accu[current.pollId] || {}),
-              id: current.pollId,
-              question: current.question,
-              options: [
-                ...(accu[current.pollId] ? accu[current.pollId].options : []),
-                {
-                  id: current.id,
-                  value: current.value,
-                  totalVotes: current.totalVotes
-                }
-              ]
-            }
-          };
-        }, {});
+        const groupedByPoll = PollsRepository.groupRows(rows);
 
         return resolve(
           Object.keys(groupedByPoll).map(key => groupedByPoll[key])
@@ -157,24 +140,7 @@ class PollsRepository {
           throw new Error(error);
         }
 
-        const groupedByPoll = rows.reduce((accu, current) => {
-          return {
-            ...accu,
-            [current.pollId]: {
-              ...(accu[current.pollId] || {}),
-              id: current.pollId,
-              question: current.question,
-              options: [
-                ...(accu[current.pollId] ? accu[current.pollId].options : []),
-                {
-                  id: current.id,
-                  value: current.value,
-                  totalVotes: current.totalVotes
-                }
-              ]
-            }
-          };
-        }, {});
+        const groupedByPoll = PollsRepository.groupRows(rows);
 
         return resolve(
           Object.keys(groupedByPoll).map(key => groupedByPoll[key])[0]
@@ -227,6 +193,31 @@ class PollsRepository {
         }
       );
     });
+  }
+
+  static groupRows(rows) {
+    if (!rows) {
+      return [];
+    }
+
+    return rows.reduce((accu, current) => {
+      return {
+        ...accu,
+        [current.pollId]: {
+          ...(accu[current.pollId] || {}),
+          id: current.pollId,
+          question: current.question,
+          options: [
+            ...(accu[current.pollId] ? accu[current.pollId].options : []),
+            {
+              id: current.id,
+              value: current.value,
+              totalVotes: current.totalVotes
+            }
+          ]
+        }
+      };
+    }, {});
   }
 }
 
