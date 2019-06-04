@@ -1,28 +1,11 @@
 const path = require("path");
 const sqlite3 = require("sqlite3").verbose();
 const { BASE_URL } = require("../utils/path");
+const { runAsync } = require("../utils/db");
 
 class PollsRepository {
-  constructor(options = { shouldInit: false }) {
-    this.DB = new sqlite3.Database(
-      path.resolve(BASE_URL, "db", "polls.db"),
-      sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
-      async error => {
-        if (error) {
-          console.log(error);
-          return;
-        }
-
-        if (options.shouldInit) {
-          try {
-            return await this.init();
-          } catch (error) {
-            console.log(error);
-            return;
-          }
-        }
-      }
-    );
+  constructor() {
+    this.DB = new sqlite3.Database(path.resolve(BASE_URL, "db", "polls.db"));
   }
 
   close() {
@@ -31,38 +14,39 @@ class PollsRepository {
     }
   }
 
-  init() {
-    return new Promise((resolve, reject) => {
-      if (!this.DB) {
-        throw reject("Database is not initialized");
-      }
+  async init() {
+    if (!this.DB) {
+      throw new Error("Database is not initialized");
+    }
 
-      // ----- Tables -----
+    // ----- Tables -----
 
-      this.DB.run(
-        `CREATE TABLE IF NOT EXISTS polls (
+    await runAsync(
+      this.DB,
+      `CREATE TABLE IF NOT EXISTS polls (
         id INTEGER PRIMARY KEY, 
         question TEXT, 
         isActive INTEGER
       )`
-      );
+    );
 
-      this.DB.run(
-        `CREATE TABLE IF NOT EXISTS options (
+    await runAsync(
+      this.DB,
+      `CREATE TABLE IF NOT EXISTS options (
         id INTEGER PRIMARY KEY, 
         pollId INTEGER, 
         value TEXT, 
         totalVotes INTEGER, 
         FOREIGN KEY(pollId) REFERENCES polls(id)
       )`
-      );
+    );
 
-      // ----- Indicies -----
+    // ----- Indicies -----
 
-      this.DB.run(`CREATE INDEX IF NOT EXISTS idx_pollid ON options(pollId)`);
-
-      resolve();
-    });
+    await runAsync(
+      this.DB,
+      `CREATE INDEX IF NOT EXISTS idx_pollid ON options(pollId)`
+    );
   }
 
   getActivePolls() {

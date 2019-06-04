@@ -38,7 +38,8 @@ http.listen(3000, async () => {
     fs.mkdirSync(databaseDirectory);
   }
 
-  new PollsRepository({ shouldInit: true }).close();
+  const repo = new PollsRepository();
+  await repo.init();
 
   console.log("listening on localhost:3000");
 });
