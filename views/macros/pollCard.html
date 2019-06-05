@@ -22,7 +22,7 @@
         {% for option in poll.options %}
           <div style="margin-top: 15px; display: flex;">
             <div style="display: flex; flex: 1;">
-              {% if not poll.votedOption and not isEditing %}
+              {% if poll.isActive === 1 and not poll.votedOption and not isEditing %}
                 <input type="radio" data-optionid={{option.id}} id={{option.value + poll.id}} name={{poll.id}}/>
                 <label class="label" for={{option.value + poll.id}} style="cursor: pointer; display: inline-block; margin-left: 5px;">{{option.value}}</label>
               {% else %}
@@ -43,7 +43,7 @@
             No questions for this poll
         {% endfor %}
 
-        {% if not poll.votedOption and not isEditing %}
+        {% if poll.isActive === 1 and not poll.votedOption and not isEditing %}
           <button
             class="button is-primary is-pulled-right is-medium submit__btn"
             style="margin-top: 15px;"
