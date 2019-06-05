@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-  <div id="poll_list_container">
+  <div id="poll_list_container" style="min-height: calc(100vh - 520px);">
     {% for poll in polls %}
       {{ pc.pollCard(poll, isEditing=true) }}
     {% else %}
@@ -15,15 +15,16 @@
 
   <script>
     window.onload = function () {
+      var pollEndDOM = document.querySelector(".poll__end");
+
       function getConfirmation() {
         var retVal = confirm("Are you sure you want to end this poll?");
 
         return Promise.resolve(retVal);
       }
 
-      document
-        .querySelector(".poll__end")
-        .addEventListener("click", function (event) {
+      if (pollEndDOM) {
+        pollEndDOM.addEventListener("click", function (event) {
           event.preventDefault();
 
           var pollId = event.currentTarget.dataset.pollid;
@@ -51,6 +52,7 @@
             }
           })
         });
+      }
     };
   </script>
 

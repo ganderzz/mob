@@ -73,8 +73,8 @@ module.exports = function(app) {
     );
 
     res.render("admin-active.njk", {
-      title: "Active Polls",
-      subtitle: "Polls currently running.",
+      title: "Manage Active Polls",
+      subtitle: "Administrate polls currently running.",
       isAdmin: req.cookies.auth,
       polls: polls
     });

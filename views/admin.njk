@@ -11,12 +11,15 @@
   {{ h.hero(title, subtitle) }}
 
   <section class="section" style="padding-top: 1.5rem;">
-    {%- block tabs -%}
-      {{ tab.adminTab(-1) }}
+    <div class="container">
+      {%- block tabs -%}
+        {{ tab.adminTab(-1) }}
+      {%- endblock -%}
+      {%- block content -%}
+        Currently Empty. Click a tab above.
+
     {%- endblock -%}
-    {%- block content -%}
-      Currently Empty. Click a tab above.
-    {%- endblock -%}
+    </div>
   </section>
 
   <script>

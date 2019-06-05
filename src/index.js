@@ -1,5 +1,5 @@
 const express = require("express");
-var fs = require("fs");
+const fs = require("fs");
 const nunjucks = require("nunjucks");
 const PollsRepository = require("./repositories/pollsRepository");
 const compression = require("compression");
@@ -30,8 +30,10 @@ require("./routes/polls")(app);
 require("./routes/views")(app);
 require("./routes/auth")(app);
 
-http.listen(3000, async () => {
-  const databaseDirectory = "./db";
+const PORT = process.env.PORT || 3000;
+
+http.listen(PORT, async () => {
+  const databaseDirectory = process.env.DB_PATH || "./db";
 
   // Create DB directory if it doesn't exist
   if (!fs.existsSync(databaseDirectory)) {
@@ -41,5 +43,5 @@ http.listen(3000, async () => {
   const repo = new PollsRepository();
   await repo.init();
 
-  console.log("listening on localhost:3000");
+  console.log("listening on localhost:" + PORT);
 });

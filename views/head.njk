@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <head>
   <title>MOB</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
   <link
     rel="icon"
     type="image/png"
     sizes="32x32"
     href="/public/favicon-32x32.png"
-  />
+/>
   <link
     rel="icon"
     type="image/png"
     sizes="16x16"
     href="/public/favicon-16x16.png"
-  />
+/>
 
   <style>
     *,
@@ -58,11 +58,39 @@
         {%- else -%}
           <div class="navbar-item">
             <div class="buttons">
-              <a href="/logout" class="button is-warning">
+              <a href="/" id="logout__btn" class="button is-warning">
                 <strong>Logout</strong>
               </a>
             </div>
           </div>
+
+          <script>
+            document
+              .querySelector("#logout__btn")
+              .addEventListener("click", function (event) {
+                event.preventDefault();
+
+                fetch("/api/logout", {
+                  method: "POST",
+                  redirect: "follow"
+                })
+                  .then(p => {
+                    if (p.ok) {
+                      window
+                        .location
+                        .replace("/");
+                      return;
+                    }
+
+                    return p
+                      .json()
+                      .then(p => Promise.reject(p));
+                  })
+                  .catch(error => {
+                    alert(error.message);
+                  });
+              });
+          </script>
         {%- endif -%}
       </div>
     </div>

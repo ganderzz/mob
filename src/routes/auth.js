@@ -24,4 +24,16 @@ module.exports = function(app) {
       res.send(JSON.stringify(true));
     })
   );
+
+  app.post(
+    "/api/logout",
+    asyncMiddleware(async (req, res) => {
+      if (!req.cookies || !req.cookies.auth) {
+        throw new Error("Already logged out.");
+      }
+
+      res.cookie("auth", "-1", { maxAge: new Date(0) });
+      res.send(true);
+    })
+  );
 };

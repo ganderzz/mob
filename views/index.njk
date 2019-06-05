@@ -24,47 +24,61 @@
 </script>
 
 <script>
-  document.querySelector(".submit__btn").addEventListener("click", function(event) {
-    var target = event && event.currentTarget;
+  window.onload = function () {
+    var submitButtonDOM = document.querySelector(".submit__btn");
 
-    if (!target) {
-      return;
-    }
+    if (submitButtonDOM) {
+      submitButtonDOM.addEventListener("click", function (event) {
+        var target = event && event.currentTarget;
 
-    target.classList.add("is-loading");
-    target.disabled = true;
+        if (!target) {
+          return;
+        }
 
-    var checkedOption = target.parentNode.querySelector("input[type=radio]:checked");
-    var pollId = target.dataset.pollid;
-    var optionId = checkedOption.dataset.optionid;
+        target
+          .classList
+          .add("is-loading");
+        target.disabled = true;
 
-    if (!pollId || !optionId) {
-      alert("Missing an option for the submitted poll.");
-      return;
-    }
+        var checkedOption = target
+          .parentNode
+          .querySelector("input[type=radio]:checked");
+        var pollId = target.dataset.pollid;
+        var optionId = checkedOption.dataset.optionid;
 
-    submitPollOption(pollId, optionId)
-      .then(response => {
-        window.location.reload();
+        if (!pollId || !optionId) {
+          alert("Missing an option for the submitted poll.");
+          return;
+        }
 
-        return;
-      })
-      .catch(error => {
-          target.classList.remove("is-loading");
-          target.disabled = false;
+        submitPollOption(pollId, optionId)
+          .then(response => {
+            window
+              .location
+              .reload();
+
+            return;
+          })
+          .catch(error => {
+            target
+              .classList
+              .remove("is-loading");
+            target.disabled = false;
+          });
       });
-  });
+    }
+  }
 
   function submitPollOption(pollId, optionId) {
-    return fetch("/api/polls/" + pollId + "/options/" + optionId, {
-      method: "PUT"
-    })
+    return fetch("/api/polls/" + pollId + "/options/" + optionId, {method: "PUT"})
       .then(p => {
         if (p.ok) {
           return p.json();
         }
 
-        return p.json().then(error => Promise.reject(error));
+        return p
+          .json()
+          .then(error => Promise.reject(error));
       })
       .catch(error => {
         alert(error.message);
