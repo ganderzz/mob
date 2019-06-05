@@ -191,6 +191,7 @@ class PollsRepository {
           ...(accu[current.pollId] || {}),
           id: current.pollId,
           question: current.question,
+          isActive: current.isActive || 0,
           options: [
             ...(accu[current.pollId] ? accu[current.pollId].options : []),
             {

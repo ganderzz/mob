@@ -4,13 +4,12 @@ module.exports = {
       return [];
     }
 
-    return polls.map(p => {
+    return polls.map((p = {}) => {
       return {
         ...p,
-        totalVotes: p.options.reduce(
-          (accu, current) => accu + current.totalVotes,
-          0
-        ),
+        totalVotes: p.options
+          ? p.options.reduce((accu, current) => accu + current.totalVotes, 0)
+          : 0,
         votedOption: cookies ? cookies[p.id] : null
       };
     });
