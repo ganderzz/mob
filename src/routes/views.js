@@ -79,6 +79,23 @@ module.exports = function(app) {
       polls: polls
     });
   });
+  
+  /**
+   * Renders the closes polls.
+   */
+  app.get("/admin/polls/closed", async (req, res) => {
+    const polls = groupPolls(
+      await new PollsRepository().getClosedPolls(),
+      req.cookies
+    );
+    
+    res.render("admin-closed.njk", {
+      title: "View Closed Polls",
+      subtitle: "View polls which have been closed.",
+      isAdmin: req.cookies.auth,
+      polls: polls
+    });
+  });
 
   /**
    * Render the login screen to access admin functionality.
