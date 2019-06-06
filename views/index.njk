@@ -11,7 +11,7 @@
   <div class="container">
     <div id="poll_list_container">
       {% for poll in polls %}
-        {{ pc.pollCard(poll) }}
+        {{ pc.pollCard(poll, isEditing=0) }}
       {% else %}
         😮 Empty. Once a poll is created it'll appear here!
       {% endfor %}
