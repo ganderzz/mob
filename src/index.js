@@ -30,7 +30,7 @@ require("./routes/polls")(app);
 require("./routes/views")(app);
 require("./routes/auth")(app);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 http.listen(PORT, async () => {
   const databaseDirectory = process.env.DB_PATH || "./db";
