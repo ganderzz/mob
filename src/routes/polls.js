@@ -43,6 +43,15 @@ module.exports = function(app) {
   );
 
   app.put(
+    "/api/polls/:pollId/open",
+    asyncMiddleware(async (req, res) => {
+      const result = await new PollsRepository().openPoll(req.params.pollId);
+
+      res.send(JSON.stringify(result));
+    })
+  );
+
+  app.put(
     "/api/polls/:pollId/options/:optionId",
     asyncMiddleware(async (req, res) => {
       const optionId = req.params.optionId;

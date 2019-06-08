@@ -1,7 +1,7 @@
 {% extends "admin.njk" %}
 
 {% block tabs %}
-  {{ tab.adminTab(1) }}
+  {{ tab.adminTab(2) }}
 {% endblock %}
 
 {% block content %}
@@ -9,29 +9,29 @@
     {% for poll in polls %}
       {{ pc.pollCard(poll, isEditing=1) }}
     {% else %}
-        😮 Empty. Once a poll is created it'll appear here!
+        😮 Empty. Once a poll has been closed it'll appear here!
       {% endfor %}
   </div>
 
   <script>
     window.onload = function () {
-      var pollEndDOM = document.querySelector(".poll__end");
+      var pollStartDOM = document.querySelector(".poll__start");
 
       function getConfirmation() {
-        var retVal = confirm("Are you sure you want to end this poll?");
+        var retVal = confirm("Are you sure you want to restart this poll?");
 
         return Promise.resolve(retVal);
       }
 
-      if (pollEndDOM) {
-        pollEndDOM.addEventListener("click", function (event) {
+      if (pollStartDOM) {
+        pollStartDOM.addEventListener("click", function (event) {
           event.preventDefault();
 
           var pollId = event.currentTarget.dataset.pollid;
 
           getConfirmation().then(isOk => {
             if (isOk) {
-              fetch("/api/polls/" + pollId + "/close", {method: "GET"})
+              fetch("/api/polls/" + pollId + "/open", {method: "GET"})
                 .then(response => {
                   if (response.ok) {
                     return response.json();

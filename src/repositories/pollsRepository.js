@@ -71,7 +71,45 @@ class PollsRepository {
     });
   }
 
-  closePoll(pollId) {
+  getClosedPolls() {
+    const sql = `
+      SELECT * FROM polls p
+      LEFT JOIN options as o ON o.pollId = p.id 
+      WHERE p.isActive = 0
+    `;
+
+    return new Promise(resolve => {
+      this.DB.all(sql, [], (error, rows) => {
+        if (error) {
+          return new Error(error);
+        }
+
+        const groupedByPoll = PollsRepository.groupRows(rows);
+
+        return resolve(
+          Object.keys(groupedByPoll).map(key => groupedByPoll[key])
+        );
+      });
+    });
+  }
+
+  openPoll(pollId) {
+    if (pollId == null) {
+      return Promise.reject("Invalid Poll ID.");
+    }
+
+    return new Promise(resolve => {
+      this.DB.run(
+        `UPDATE polls SET isActive = 1 WHERE id = ?`,
+        [pollId],
+        function() {
+          resolve(true);
+        }
+      );
+    });
+  }
+
+ closePoll(pollId) {
     if (pollId == null) {
       return Promise.reject("Invalid Poll ID.");
     }
