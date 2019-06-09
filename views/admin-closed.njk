@@ -15,43 +15,45 @@
 
   <script>
     window.onload = function () {
-      var pollStartDOM = document.querySelector(".poll__start");
+      var pollStartDOMList = document.querySelectorAll(".poll__start");
 
       function getConfirmation() {
-        var retVal = confirm("Are you sure you want to restart this poll?");
+        var retVal = confirm("Are you sure you want to restore this poll?");
 
         return Promise.resolve(retVal);
       }
 
-      if (pollStartDOM) {
-        pollStartDOM.addEventListener("click", function (event) {
-          event.preventDefault();
+      if (pollStartDOMList) {
+        for (var i = 0; i < pollStartDOMList.length; i++) {
+          pollStartDOMList[i].addEventListener("click", function (event) {
+            event.preventDefault();
 
-          var pollId = event.currentTarget.dataset.pollid;
+            var pollId = event.currentTarget.dataset.pollid;
 
-          getConfirmation().then(isOk => {
-            if (isOk) {
-              fetch("/api/polls/" + pollId + "/open", {method: "GET"})
-                .then(response => {
-                  if (response.ok) {
-                    return response.json();
-                  }
+            getConfirmation().then(isOk => {
+              if (isOk) {
+                fetch("/api/polls/" + pollId + "/open", {method: "PUT"})
+                  .then(response => {
+                    if (response.ok) {
+                      return response.json();
+                    }
 
-                  return response
-                    .json()
-                    .then(Promise.reject);
-                })
-                .then(result => {
-                  window
-                    .location
-                    .reload();
-                })
-                .catch(error => {
-                  alert(error.message);
-                });
-            }
-          })
-        });
+                    return response
+                      .json()
+                      .then(Promise.reject);
+                  })
+                  .then(result => {
+                    window
+                      .location
+                      .reload();
+                  })
+                  .catch(error => {
+                    alert(error.message);
+                  });
+              }
+            })
+          });
+        }
       }
     };
   </script>

@@ -73,13 +73,13 @@ module.exports = function(app) {
     );
 
     res.render("admin-active.njk", {
-      title: "Manage Active Polls",
+      title: "View Active Polls",
       subtitle: "Administrate polls currently running.",
       isAdmin: req.cookies.auth,
       polls: polls
     });
   });
-  
+
   /**
    * Renders the closes polls.
    */
@@ -88,7 +88,7 @@ module.exports = function(app) {
       await new PollsRepository().getClosedPolls(),
       req.cookies
     );
-    
+
     res.render("admin-closed.njk", {
       title: "View Closed Polls",
       subtitle: "View polls which have been closed.",

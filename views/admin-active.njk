@@ -7,7 +7,7 @@
 {% block content %}
   <div id="poll_list_container" style="min-height: calc(100vh - 520px);">
     {% for poll in polls %}
-      {{ pc.pollCard(poll, isEditing=1) }}
+      {{ pc.pollCard(poll, isEditing=2) }}
     {% else %}
         😮 Empty. Once a poll is created it'll appear here!
       {% endfor %}
@@ -15,7 +15,7 @@
 
   <script>
     window.onload = function () {
-      var pollEndDOM = document.querySelector(".poll__end");
+      var pollEndDOMList = document.querySelectorAll(".poll__end");
 
       function getConfirmation() {
         var retVal = confirm("Are you sure you want to end this poll?");
@@ -23,35 +23,38 @@
         return Promise.resolve(retVal);
       }
 
-      if (pollEndDOM) {
-        pollEndDOM.addEventListener("click", function (event) {
-          event.preventDefault();
+      if (pollEndDOMList) {
+        for (var i = 0; i < pollEndDOMList.length; i++) {
 
-          var pollId = event.currentTarget.dataset.pollid;
+          pollEndDOMList[i].addEventListener("click", function (event) {
+            event.preventDefault();
 
-          getConfirmation().then(isOk => {
-            if (isOk) {
-              fetch("/api/polls/" + pollId + "/close", {method: "GET"})
-                .then(response => {
-                  if (response.ok) {
-                    return response.json();
-                  }
+            var pollId = event.currentTarget.dataset.pollid;
 
-                  return response
-                    .json()
-                    .then(Promise.reject);
-                })
-                .then(result => {
-                  window
-                    .location
-                    .reload();
-                })
-                .catch(error => {
-                  alert(error.message);
-                });
-            }
-          })
-        });
+            getConfirmation().then(isOk => {
+              if (isOk) {
+                fetch("/api/polls/" + pollId + "/close", {method: "PUT"})
+                  .then(response => {
+                    if (response.ok) {
+                      return response.json();
+                    }
+
+                    return response
+                      .json()
+                      .then(Promise.reject);
+                  })
+                  .then(result => {
+                    window
+                      .location
+                      .reload();
+                  })
+                  .catch(error => {
+                    alert(error.message);
+                  });
+              }
+            })
+          });
+        }
       }
     };
   </script>
